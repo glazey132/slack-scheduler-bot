@@ -8,6 +8,9 @@ var request = require('request')
 // var rtm = new RtmClient(botAccessToken);
 //
 // rtm.start();
+var models = require('../models');
+var User = models.User;
+var Task = models.Task;
 
 /* GET home page. */
 router.get('/', function(req, res, next) {
