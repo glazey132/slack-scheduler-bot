@@ -1,6 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var request = require('request')
+// const { RTMClient } = require('@slack/client');
+
+var apiai = require('apiai')
+var app = apiai(process.env.APIAI_CLIENT_ACCESS)
 
 // var RtmClient = require('@slack/client').RtmClient,
 //     RTM_EVENTS = require('@slack/client').RTM_EVENTS;
@@ -42,6 +46,12 @@ router.get('/redirect', (req, res) =>{
 
 
 router.post('/testing', (req, res) => {
+
+  var request = app.textRequest('<Your text query>', {
+      sessionId: '<unique session id>'
+  });
+
+
   // console.log('req is', req)
   console.log('request parameters are', req.body.result.parameters)
   console.log('resolvedQuery is ', req.body.resolvedQuery)
@@ -53,8 +63,8 @@ router.post('/testing', (req, res) => {
   // if it doesn't exist, add it and send link to google auth form
   // if it does exist but no googleAuth token send link to google auth form
   console.log('req.body.originalRequest.data is ', req.body.originalRequest.data)
-  res.setHeader('Content-Type', 'application/json')
-  res.send(JSON.stringify({"displayText": "Successfully sent custom response"}))
+  // res.setHeader('Content-Type', 'application/json')
+  res.send({"displayText": "Successfully sent custom response"})
 })
 
 // router.post('/end', (req, res) => {
