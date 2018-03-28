@@ -3,18 +3,22 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "nodemon ./bin/www"
   },
   "dependencies": {
+    "@slack/client": "^4.1.0",
+    "apiai": "^4.0.3",
+    "axios": "^0.18.0",
     "cookie-parser": "~1.4.3",
     "debug": "~2.6.9",
+    "dialogflow": "^0.1.0",
     "express": "~4.16.0",
     "google-auth-library": "^0.12.0",
     "googleapis": "^25.0.0",
     "hbs": "~4.0.1",
     "http-errors": "~1.6.2",
+    "mongoose": "^5.0.12",
     "morgan": "~1.9.0",
     "request": "^2.85.0"
-    "mongoose": "^5.0.12",
   }
 }
