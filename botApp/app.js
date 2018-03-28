@@ -9,6 +9,22 @@ var usersRouter = require('./routes/users');
 
 var app = express();
 
+// var apiai = require('apiai');
+// var dialogueApp = apiai("61a0410e0770413a88656f392ff186b9");
+// var request = dialogueApp.textRequest('<Your text query>', {
+//     sessionId: '<unique session id>'
+// });
+//
+// request.on('response', function(response) {
+//   console.log(response);
+// });
+//
+// request.on('error', function(error) {
+//   console.log(error);
+// });
+//
+// request.end()
+
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'hbs');
