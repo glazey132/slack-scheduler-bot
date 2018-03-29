@@ -68,17 +68,21 @@ const UserSchema = new Schema({
   }
 });
 
-UserSchema.statics.findOrCreate = (slackId, slackUsername, slackEmail) => {
+UserSchema.statics.findOrCreate = function(slackId) {
   return User.findOne({
     slackId
-  }).then(user => {
-    return user ? user : new User({
-      slackId,
-      slackUsername,
-      slackEmail
-    }).save();
-  })
+  }).then(function(user) {
+    if (user) {
+      return user;
+    } else {
+      return new User({
+        slackId
+      }).save();
+    }
+  });
 };
+
+var User = mongoose.model('User', UserSchema);
 
 const InviteRequestSchema = new Schema({
   eventId: {
@@ -101,6 +105,6 @@ const InviteRequestSchema = new Schema({
 module.exports = {
   Task: mongoose.model('Task', TaskSchema),
   Meeting: mongoose.model('Meeting', MeetingSchema),
-  User: mongoose.model('User', UserSchema),
+  User: User,
   InviteRequest: mongoose.model('InviteRequest', InviteRequestSchema)
 };

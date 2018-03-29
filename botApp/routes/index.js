@@ -24,15 +24,16 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-// router.get('https://819e0fea.ngrok.io/message_action', function(req, res) {
-//   console.log('request is ', req)
-// })
+router.get('https://2274c4a4.ngrok.io/message_action', function(req, res) {
+  console.log('request is ', req)
+})
 
 
 router.get('/setup', function(req, res) {
   var url = google.generateAuthUrl();
   res.redirect(url);
-})
+});
+
 router.get('/google/callback', function(req, res, next) {
   google.getToken(req.query.code)
     .then(function (tokens) {
