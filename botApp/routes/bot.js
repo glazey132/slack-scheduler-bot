@@ -32,16 +32,15 @@ rtm.on('message', function handleRtmMessage(message) {
     if (intent === 'reminder.add' || intent === 'meeting.add') {
       User.findOrCreate(message.user)
       .then(u => {
-        console.log('user', u);
-        if (u.googleCalendarAccount.accessToken !== undefined) {
-          console.log('found a gca', u.googleCalendarAccount.accessToken);
+        if(user.googleCalendarAccount.isSetupComplete) {
+          console.log('user is already set up ', u.googleCalendarAccount.isSetupComplete);
           return u;
         } else {
           console.log('did not find a gca');
           return web.chat.postMessage({
             token: token,
             channel: message.channel,
-            text: `Hello, please give access to your Google Calendar http://localhost:3000/setup`
+            text: `Hello, please give access to your Google Calendar http://localhost:3000/setup?slackId=${message.user}`
           });
         }
       })
