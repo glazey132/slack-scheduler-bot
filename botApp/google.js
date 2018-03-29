@@ -17,12 +17,12 @@ function getAuthClient() {
   );
 }
 module.exports = {
-  generateAuthUrl() {
+  generateAuthUrl(slackId) {
     return getAuthClient().generateAuthUrl({
       access_type: 'offline',
       prompt: 'consent',
-      scope
-      //state
+      scope,
+      slackId: slackId
     });
   },
 

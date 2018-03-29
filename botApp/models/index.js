@@ -48,8 +48,10 @@ const MeetingSchema = new Schema({
 
 const UserSchema = new Schema({
   googleCalendarAccount: {
-    accessToken: {
-      type: String
+    tokens: Object,
+    isSetupComplete: {
+      type: Boolean,
+      default: false
     }
   },
   slackId: {
