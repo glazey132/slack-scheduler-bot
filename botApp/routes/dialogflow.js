@@ -24,7 +24,6 @@ module.exports = {
       });
 
       request.on('response', function(response) {
-          console.log('the response is: ', JSON.stringify(response, null, 2))
           resolve(response)
       });
 
