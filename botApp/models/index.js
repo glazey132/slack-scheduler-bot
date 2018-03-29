@@ -1,39 +1,106 @@
 const mongoose = require('mongoose');
-const connect = process.env.MONGODB_URI;
+mongoose.connect(process.env.MONGODB_URI);
+const Schema = mongoose.Schema;
 
-mongoose.connect(connect);
-
-var UserSchema = mongoose.Schema({
-  slackName: {
+const TaskSchema = new Schema({
+  subject: {
+    type: String,
+    required: true
+  },
+  day: {
+    type: Date,
+    required: true
+  },
+  googleCalendarEventId: {
     type: String
+  },
+  requesterId: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  }
+});
+
+const MeetingSchema = new Schema({
+  day: {
+    type: Date,
+    required: true
+  },
+  time: {
+    type: Date,
+    required: true
+  },
+  invitees: {
+    type: Array,
+    required: true
+  },
+  subject: {
+    type: String,
+    default: 'Meeting'
+  },
+  meetingLength: String,
+  status: Boolean,
+  requesterId: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  }
+});
+
+
+const UserSchema = new Schema({
+  googleCalendarAccount: {
+    accessToken: {
+      type: String
+    }
   },
   slackId: {
+    type: String,
+    required: true,
+    unique: true
+  },
+  slackUsername: {
     type: String
   },
-  googleProfile: {
-    type: Object
-  },
-  channel: {
+  slackEmail: {
     type: String
+  },
+  slackDMIds: {
+    type: Array
   }
-})
+});
 
-var TaskSchema = mongoose.Schema({
-  subject: {
-    type: String
+UserSchema.statics.findOrCreate = (slackId, slackUsername, slackEmail) => {
+  return User.findOne({
+    slackId
+  }).then(user => {
+    return user ? user : new User({
+      slackId,
+      slackUsername,
+      slackEmail
+    }).save();
+  })
+};
+
+const InviteRequestSchema = new Schema({
+  eventId: {
+    type: Schema.ObjectId,
+    ref: 'Meeting'
   },
-  date: {
-    type: Date
+  inviteeId: {
+    type: Schema.ObjectId,
+    ref: 'User'
   },
-  userSlackId: {
-    type: String
+  requesterId: {
+    type: Schema.ObjectId,
+    ref: 'User'
+  },
+  status: {
+    type: Boolean
   }
-})
-
-var User = mongoose.model('User', UserSchema);
-var Task = mongoose.model('Task', TaskSchema);
+});
 
 module.exports = {
-  User: User,
-  Task: Task
-}
+  Task: mongoose.model('Task', TaskSchema),
+  Meeting: mongoose.model('Meeting', MeetingSchema),
+  User: mongoose.model('User', UserSchema),
+  InviteRequest: mongoose.model('InviteRequest', InviteRequestSchema)
+};
