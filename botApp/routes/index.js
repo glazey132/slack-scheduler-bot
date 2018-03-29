@@ -24,28 +24,32 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
-router.get('https://2274c4a4.ngrok.io/message_action', function(req, res) {
-  console.log('request is ', req)
-})
-
 
 router.get('/setup', function(req, res) {
-  var url = google.generateAuthUrl();
+  var user, tokens;
+  var url = google.generateAuthUrl(req.query.slackId);
   res.redirect(url);
-});
-
+})
 router.get('/google/callback', function(req, res, next) {
-  google.getToken(req.query.code)
-    .then(function (tokens) {
-      return google.createCalendarEvent(tokens, 'MY LAST TEST!! >:)', '2018-03-30')
-    })
-    .then(function() {
-      res.send('CREATED YOUR EVENT!!! :)')
-    })
-    .catch(function (err) {
-      console.log('ERROR receiving token', err);
-      res.status(500).send('Sorry we were unable to receive the Google token')
-    });
+  User.findOne({ slackId: req.query.state })
+  .then(function(u) {
+    user = u;
+    return google.getToken(req.query.code)
+  })
+  .then(function (t) {
+    tokens = t;
+    user.google.tokens = tokens;
+    user.google.isSetupComplete = true;
+    return user.save()
+    // return google.createCalendarEvent(tokens, 'MY LAST TEST!! >:)', '2018-03-30')
+  })
+  .then(function() {
+    res.send('You are now autheniticated with Google. Thanks!')
+  })
+  .catch(function (err) {
+    console.log('ERROR receiving token', err);
+    res.status(500).send('Sorry we were unable to receive the Google token')
+  });
 })
 
 router.get('/redirect', (req, res) =>{
