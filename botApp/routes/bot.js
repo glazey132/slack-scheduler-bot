@@ -28,29 +28,22 @@ rtm.on('team_join', function greetAndGooglePrompt(team) {
 rtm.on('message', function handleRtmMessage(message) {
   dialogflow.interpretUserMessage(message.text, message.user)
   .then(res => {
-    const intent = res.result.metadata.intentName;
+    const intent = res.result.metadata.intentName; // checks the intent type, like reminder.add or meeting.add
     if (intent === 'reminder.add' || intent === 'meeting.add') {
-      User.findOrCreate(message.user)
+      User.findOrCreate(message.user) // checks if user exists in database and makes one if it isn't found
       .then(u => {
-        console.log('user', u);
-        if (u.googleCalendarAccount.accessToken !== undefined) {
-          console.log('found a gca', u.googleCalendarAccount.accessToken);
-          return u;
-        } else {
-          console.log('did not find a gca');
+        if (u.googleCalendarAccount.accessToken === undefined) {
           return web.chat.postMessage({
             token: token,
             channel: message.channel,
-            text: `Hello, please give access to your Google Calendar http://localhost:3000/setup`
+            text: `Hello, please give access to your Google Calendar http://localhost:3000/setup?slackId=${message.user} and send your request again, please`
           });
         }
-      })
-      .then(resp => {
         if (res.result.actionIncomplete) {
           web.chat.postMessage({
             token: token,
             channel: message.channel,
-            text: res.result.fulfillment.speech
+            text: res.result.fulfillment.speech // next thing the bot wants the user to respond to
           });
         } else {
           if (intent === 'reminder.add') {
