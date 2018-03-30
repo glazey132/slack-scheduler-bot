@@ -24,22 +24,46 @@ router.get('/', function(req, res, next) {
   res.render('index', { title: 'Express' });
 });
 
+router.post('/message_action', function(req, res, next) {
+  var payload = req.body.payload;
+  console.log('payload', payload);
+  if (payload.actions[0].value) {
+    User.findOne({slackId: payload.user.id})
+    .then(function(user) {
+      return google.createCalendarEvent(user.googleCalendarAccount.tokens, user.pending.description, user.pending.date);
+    })
+    .then(function() {
+      res.send('successfully created reminder :)')
+    })
+    .catch(function(error) {
+      res.send('error creating reminder', error);
+    });
+  } else {
+    res.send('cancelled');
+  }
+})
+
 
 router.get('/setup', function(req, res) {
   var user, tokens;
   var url = google.generateAuthUrl(req.query.slackId);
+  console.log('slack id', req.query.slackId);
+  console.log('url', url);
   res.redirect(url);
 })
 router.get('/google/callback', function(req, res, next) {
+  console.log('query', req);
   User.findOne({ slackId: req.query.state })
   .then(function(u) {
     user = u;
+    console.log('user', user);
     return google.getToken(req.query.code)
   })
   .then(function (t) {
+    console.log('user again', user);
     tokens = t;
-    user.google.tokens = tokens;
-    user.google.isSetupComplete = true;
+    user.googleCalendarAccount.tokens = tokens;
+    user.googleCalendarAccount.isSetupComplete = true;
     return user.save()
     // return google.createCalendarEvent(tokens, 'MY LAST TEST!! >:)', '2018-03-30')
   })
