@@ -12,29 +12,31 @@ var web = new WebClient(token);
 rtm.start();
 
 setTimeout(() => {
-  console.log(rtm.connected, rtm.authenticated)
+  //(rtm.connected, rtm.authenticated)
 }, 1000)
 
 rtm.on('team_join', function greetAndGooglePrompt(team) {
-  console.log('user id is ', team.user.id)
+  //('user id is ', team.user.id)
   web.chat.postMessage({token: token, channel: team.user.id, text: 'Welcome to the group'})
   .then((result) => {
-    console.log(result)
+    //(result)
   })
   .catch((err) => {
-    console.log(err)
+    //(err)
   })
 });
 
 rtm.on('message', function handleRtmMessage(message) {
   var user;
-  console.log('message******', message)
+  //('message******', message)
   dialogflow.interpretUserMessage(message.text, sessionId)
   .then(res => {
     const intent = res.result.metadata.intentName; // checks the intent type, like reminder.add or meeting.add
-    if (intent === 'reminder.add' || intent === 'meeting.add') {
+    if ((intent === 'reminder.add' || intent === 'meeting.add') && message.subtype !== 'bot_message') {
+
       User.findOrCreate(message.user) // checks if user exists in database and makes one if it isn't found
       .then(u => {
+        //('the user is: ', u)
         user = u;
         if (!u.googleCalendarAccount.isSetupComplete) {
           return web.chat.postMessage({
@@ -56,6 +58,7 @@ rtm.on('message', function handleRtmMessage(message) {
           return user.save()
           .then(function() {
             if (intent === 'reminder.add') {
+              console.log('message', message)
               web.chat.postMessage({
                 token: token,
                 channel: message.channel,
@@ -143,7 +146,7 @@ rtm.on('message', function handleRtmMessage(message) {
         }
       })
       .catch(err => {
-        console.log('Error finding or creating user', err);
+        //('Error finding or creating user', err);
       });
     }
   })
