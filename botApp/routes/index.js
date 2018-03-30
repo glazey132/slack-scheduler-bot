@@ -25,42 +25,45 @@ router.get('/', function(req, res, next) {
 });
 
 router.post('/message_action', function(req, res, next) {
-  var payload = req.body.payload;
-  console.log('payload', payload);
+  var payload = JSON.parse(req.body.payload);
   if (payload.actions[0].value) {
     User.findOne({slackId: payload.user.id})
     .then(function(user) {
+      //("User in message_action", user)
       return google.createCalendarEvent(user.googleCalendarAccount.tokens, user.pending.description, user.pending.date);
     })
     .then(function() {
       res.send('successfully created reminder :)')
     })
     .catch(function(error) {
+      //("Error in message_action", error)
       res.send('error creating reminder', error);
     });
   } else {
+    //("Truthy test message_action", payload.actions[0].value == true)
     res.send('cancelled');
   }
 })
 
 
 router.get('/setup', function(req, res) {
+  //('REQ QUERY IS **** ', req.query);
   var user, tokens;
   var url = google.generateAuthUrl(req.query.slackId);
-  console.log('slack id', req.query.slackId);
-  console.log('url', url);
+  //('slack id', req.query.slackId);
+  //('url', url);
   res.redirect(url);
 })
 router.get('/google/callback', function(req, res, next) {
-  console.log('query', req);
+  //('query', req);
   User.findOne({ slackId: req.query.state })
   .then(function(u) {
     user = u;
-    console.log('user', user);
+    //('user', user);
     return google.getToken(req.query.code)
   })
   .then(function (t) {
-    console.log('user again', user);
+    //('user again', user);
     tokens = t;
     user.googleCalendarAccount.tokens = tokens;
     user.googleCalendarAccount.isSetupComplete = true;
@@ -71,28 +74,28 @@ router.get('/google/callback', function(req, res, next) {
     res.send('You are now autheniticated with Google. Thanks!')
   })
   .catch(function (err) {
-    console.log('ERROR receiving token', err);
+    //('ERROR receiving token', err);
     res.status(500).send('Sorry we were unable to receive the Google token')
   });
 })
 
 router.get('/redirect', (req, res) =>{
-  console.log('in here')
+  //('in here')
     var options = {
         uri: 'https://slack.com/api/oauth.access?code='
             +req.query.code+
             '&client_id='+process.env.CLIENT_ID+
             '&client_secret='+process.env.CLIENT_SECRET+
-            '&redirect_url=http://e05f110f.ngrok.io/redirect/getGoogle',
+            '&redirect_url=https://ee2cb516.ngrok.io/redirect/getGoogle',
         method: 'GET'
     }
     request(options, (error, response, body) => {
         var JSONresponse = JSON.parse(body)
         if (!JSONresponse.ok){
-            console.log(JSONresponse)
+            //(JSONresponse)
             res.send("Error encountered: \n"+JSON.stringify(JSONresponse)).status(200).end()
         }else{
-            console.log(JSONresponse)
+            //(JSONresponse)
             // res.send("Success!")
             res.redirect('/redirect/getGoogle')
         }
@@ -107,23 +110,23 @@ router.post('/testing', (req, res) => {
   });
 
 
-  // console.log('req is', req)
-  console.log('request parameters are', req.body.result.parameters)
-  console.log('resolvedQuery is ', req.body.resolvedQuery)
-  // console.log('req.params is ', req.params)
-  // console.log('req.query is ', req.query)
+  // //('req is', req)
+  //('request parameters are', req.body.result.parameters)
+  //('resolvedQuery is ', req.body.resolvedQuery)
+  // //('req.params is ', req.params)
+  // //('req.query is ', req.query)
 
   // ***** check database for that slackUser id req.body.originalRequest.data.event.user
   // see if it exists in database AND if it has a googleAuth token
   // if it doesn't exist, add it and send link to google auth form
   // if it does exist but no googleAuth token send link to google auth form
-  console.log('req.body.originalRequest.data is ', req.body.originalRequest.data)
+  //('req.body.originalRequest.data is ', req.body.originalRequest.data)
   // res.setHeader('Content-Type', 'application/json')
   res.send({"displayText": "Successfully sent custom response"})
 })
 
 // router.post('/end', (req, res) => {
-//   console.log('req.body is', req.body)
+//   //('req.body is', req.body)
 //   res.json(req.body.challenge)
 // })
 module.exports = router;
