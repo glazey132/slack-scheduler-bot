@@ -67,6 +67,10 @@ const UserSchema = new Schema({
   },
   slackDMIds: {
     type: Array
+  },
+  pending: {
+    date: String,
+    description: String
   }
 });
 
